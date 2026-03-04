@@ -14,7 +14,7 @@ const Index = () => {
       <div className="mx-auto max-w-5xl">
         <DashboardHeader />
         <FilterBar active={filter} onChange={setFilter} />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-col gap-3">
           {filtered.map((tool, i) => (
             <ToolCard key={tool.id} tool={tool} index={i} />
           ))}
