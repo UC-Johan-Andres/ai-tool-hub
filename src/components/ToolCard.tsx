@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { Copy, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { executeToolAction } from "@/lib/cli-executor";
+import { Link } from "react-router-dom";
 
 interface ToolCardProps {
   tool: AITool;
@@ -18,6 +20,10 @@ export function ToolCard({ tool, index }: ToolCardProps) {
   const copyCmd = (cmd: string) => {
     navigator.clipboard.writeText(cmd);
     toast.success("Comando copiado");
+  };
+
+  const handleExecute = async (action: (typeof tool.actions)[number]) => {
+    await executeToolAction(tool, action);
   };
 
   return (
@@ -47,6 +53,13 @@ export function ToolCard({ tool, index }: ToolCardProps) {
           </span>
 
           <StatusDot status={tool.status} />
+
+          <Link
+            to={`/tools/${tool.id}`}
+            className="hidden shrink-0 rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground hover:bg-secondary/80 sm:inline"
+          >
+            Ver detalle
+          </Link>
 
           <a
             href={tool.url}
@@ -78,9 +91,11 @@ export function ToolCard({ tool, index }: ToolCardProps) {
             {tool.actions.map((action) => {
               const ActionIcon = icons[action.icon as keyof typeof icons];
               return (
-                <div
+                <button
                   key={action.id}
-                  className="flex items-center gap-3 rounded-md bg-secondary/50 px-3 py-2.5 transition-colors hover:bg-secondary"
+                  type="button"
+                  onClick={() => handleExecute(action)}
+                  className="flex items-center gap-3 rounded-md bg-secondary/50 px-3 py-2.5 text-left transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-background">
                     {ActionIcon && <ActionIcon size={14} className="text-primary" />}
@@ -92,13 +107,16 @@ export function ToolCard({ tool, index }: ToolCardProps) {
                     </code>
                   </div>
                   <button
+                    type="button"
                     onClick={() => copyCmd(action.cmd)}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClickCapture={(e) => e.stopPropagation()}
                     className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-background hover:text-primary"
                     title="Copiar comando"
                   >
                     <Copy size={12} />
                   </button>
-                </div>
+                </button>
               );
             })}
           </div>
