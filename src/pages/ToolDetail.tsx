@@ -3,8 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { tools } from "@/data/tools";
 import { StatusDot } from "@/components/StatusDot";
 import { icons, Info } from "lucide-react";
-import { executeToolAction } from "@/lib/cli-executor";
-import { toast } from "sonner";
+import { ActionExecutor } from "@/components/ActionExecutor";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 
@@ -63,14 +62,7 @@ const ToolDetail = () => {
 
   const IconComponent = icons[tool.icon as keyof typeof icons];
 
-  const handleExecute = async (actionId: string) => {
-    const action = tool.actions.find((a) => a.id === actionId);
-    if (!action) {
-      toast.error("Acción no encontrada");
-      return;
-    }
-    await executeToolAction(tool, action);
-  };
+  // Removed handleExecute - now handled by ActionExecutor
 
   return (
     <div className="min-h-screen bg-background px-6 py-12 md:px-12 lg:px-24">
@@ -124,35 +116,38 @@ const ToolDetail = () => {
               {tool.actions.map((action) => {
                 const ActionIcon = icons[action.icon as keyof typeof icons];
                 return (
-                  <button
-                    key={action.id}
-                    type="button"
-                    onClick={() => handleExecute(action.id)}
-                    className="flex items-center gap-3 rounded-md bg-secondary/50 px-3 py-2.5 text-left text-xs transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                  >
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-background">
-                      {ActionIcon && <ActionIcon size={14} className="text-primary" />}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <span className="text-xs font-medium text-foreground">{action.label}</span>
-                      <code className="mt-0.5 block truncate font-mono text-[10px] text-muted-foreground">
-                        $ {action.cmd}
-                      </code>
-                    </div>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span
-                          className="shrink-0 cursor-help rounded p-1 text-muted-foreground transition-colors hover:text-primary"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Info size={14} />
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" className="max-w-[240px] text-xs">
-                        {action.info}
-                      </TooltipContent>
-                    </Tooltip>
-                  </button>
+                  <ActionExecutor key={action.id} tool={tool} action={action}>
+                    {({ onClick }) => (
+                      <button
+                        type="button"
+                        onClick={onClick}
+                        className="flex items-center gap-3 rounded-md bg-secondary/50 px-3 py-2.5 text-left text-xs transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-background">
+                          {ActionIcon && <ActionIcon size={14} className="text-primary" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-xs font-medium text-foreground">{action.label}</span>
+                          <code className="mt-0.5 block truncate font-mono text-[10px] text-muted-foreground">
+                            $ {action.cmd}
+                          </code>
+                        </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              className="shrink-0 cursor-help rounded p-1 text-muted-foreground transition-colors hover:text-primary"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Info size={14} />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="max-w-[240px] text-xs">
+                            {action.info}
+                          </TooltipContent>
+                        </Tooltip>
+                      </button>
+                    )}
+                  </ActionExecutor>
                 );
               })}
             </div>
