@@ -5,8 +5,6 @@ import { StatusDot } from "@/components/StatusDot";
 import { icons, Info } from "lucide-react";
 import { ActionExecutor } from "@/components/ActionExecutor";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-
-
 interface ToolLogEntry {
   id: string;
   actionId: string;
@@ -62,7 +60,6 @@ const ToolDetail = () => {
 
   const IconComponent = icons[tool.icon as keyof typeof icons];
 
-  // Removed handleExecute - now handled by ActionExecutor
 
   return (
     <div className="min-h-screen bg-background px-6 py-12 md:px-12 lg:px-24">
@@ -109,8 +106,9 @@ const ToolDetail = () => {
           <section className="rounded-lg border border-border bg-card p-4">
             <h2 className="mb-3 text-sm font-semibold">Acciones disponibles</h2>
             <p className="mb-4 text-xs text-muted-foreground">
-              Ejecuta acciones directamente desde el hub. Si no hay backend configurado, el comando se
-              copiará al portapapeles.
+              Ejecuta acciones directamente desde el hub. Si la acción necesita uno o más valores (por
+              ejemplo un prompt, un modelo o una ruta de config), complétalos antes de ejecutar. Si no hay
+              backend configurado, el comando se copiará al portapapeles.
             </p>
             <div className="flex flex-col gap-2">
               {tool.actions.map((action) => {

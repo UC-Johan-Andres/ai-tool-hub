@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Docs de arquitectura local
+ARCHITECTURA.md

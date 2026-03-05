@@ -1,11 +1,20 @@
 export type ToolStatus = "active" | "inactive" | "updating";
 
+export interface ToolActionParam {
+  id: string;
+  label: string;
+  placeholder?: string;
+  type?: "text" | "password";
+  required?: boolean;
+}
+
 export interface ToolAction {
   id: string;
   label: string;
   cmd: string;
   icon: string;
   info: string;
+  params?: ToolActionParam[];
 }
 
 export interface AITool {
@@ -31,10 +40,48 @@ export const tools: AITool[] = [
     category: "agent",
     url: "https://docs.anthropic.com/en/docs/claude-code",
     actions: [
-      { id: "install", label: "Instalar", cmd: "npm i -g @anthropic-ai/claude-code", icon: "Download", info: "Instala Claude Code globalmente usando npm para poder usarlo desde cualquier directorio." },
-      { id: "login", label: "Iniciar sesión", cmd: "claude login", icon: "LogIn", info: "Autentica tu cuenta de Anthropic para poder usar Claude Code con tu API key." },
-      { id: "start", label: "Iniciar agente", cmd: "claude", icon: "Play", info: "Lanza el agente interactivo de Claude Code en tu terminal para empezar a programar con IA." },
-      { id: "mcp", label: "Añadir MCP", cmd: "claude mcp add <nombre> <comando>", icon: "Plug", info: "Conecta un servidor MCP (Model Context Protocol) para extender las capacidades de Claude con herramientas externas." },
+      {
+        id: "install",
+        label: "Instalar",
+        cmd: "npm i -g @anthropic-ai/claude-code",
+        icon: "Download",
+        info: "Instala Claude Code globalmente usando npm para poder usarlo desde cualquier directorio.",
+      },
+      {
+        id: "login",
+        label: "Iniciar sesión",
+        cmd: "claude login",
+        icon: "LogIn",
+        info: "Autentica tu cuenta de Anthropic para poder usar Claude Code con tu API key.",
+      },
+      {
+        id: "start",
+        label: "Iniciar agente",
+        cmd: "claude",
+        icon: "Play",
+        info: "Lanza el agente interactivo de Claude Code en tu terminal para empezar a programar con IA.",
+      },
+      {
+        id: "mcp",
+        label: "Añadir MCP",
+        cmd: "claude mcp add {nombre} {comando}",
+        icon: "Plug",
+        info: "Conecta un servidor MCP (Model Context Protocol) para extender las capacidades de Claude con herramientas externas.",
+        params: [
+          {
+            id: "nombre",
+            label: "Nombre del MCP",
+            placeholder: "mi-servidor-mcp",
+            required: true,
+          },
+          {
+            id: "comando",
+            label: "Comando del servidor",
+            placeholder: "docker run ...",
+            required: true,
+          },
+        ],
+      },
     ],
   },
   {
@@ -62,10 +109,42 @@ export const tools: AITool[] = [
     category: "coding",
     url: "https://aider.chat",
     actions: [
-      { id: "install", label: "Instalar", cmd: "pip install aider-chat", icon: "Download", info: "Instala Aider usando pip. Requiere Python 3.10+ instalado en tu sistema." },
-      { id: "start", label: "Iniciar", cmd: "aider", icon: "Play", info: "Lanza Aider en el directorio actual para editar archivos con ayuda de IA." },
-      { id: "model", label: "Cambiar modelo", cmd: "aider --model <modelo>", icon: "Cpu", info: "Especifica qué modelo LLM usar (ej: gpt-4o, claude-3.5-sonnet, deepseek)." },
-      { id: "config", label: "Configurar", cmd: "aider --config", icon: "Settings", info: "Carga configuración desde un archivo YAML para personalizar el comportamiento de Aider." },
+      {
+        id: "install",
+        label: "Instalar",
+        cmd: "pip install aider-chat",
+        icon: "Download",
+        info: "Instala Aider usando pip. Requiere Python 3.10+ instalado en tu sistema.",
+      },
+      {
+        id: "start",
+        label: "Iniciar",
+        cmd: "aider",
+        icon: "Play",
+        info: "Lanza Aider en el directorio actual para editar archivos con ayuda de IA.",
+      },
+      {
+        id: "model",
+        label: "Cambiar modelo",
+        cmd: "aider --model {modelo}",
+        icon: "Cpu",
+        info: "Especifica qué modelo LLM usar (ej: gpt-4o, claude-3.5-sonnet, deepseek).",
+        params: [
+          {
+            id: "modelo",
+            label: "Modelo",
+            placeholder: "gpt-4o",
+            required: true,
+          },
+        ],
+      },
+      {
+        id: "config",
+        label: "Configurar",
+        cmd: "aider --config",
+        icon: "Settings",
+        info: "Carga configuración desde un archivo YAML para personalizar el comportamiento de Aider.",
+      },
     ],
   },
   {
@@ -78,10 +157,50 @@ export const tools: AITool[] = [
     category: "utility",
     url: "https://github.com/github/gh-copilot",
     actions: [
-      { id: "install", label: "Instalar", cmd: "gh extension install github/gh-copilot", icon: "Download", info: "Instala Copilot como extensión de GitHub CLI. Requiere tener gh instalado." },
-      { id: "login", label: "Iniciar sesión", cmd: "gh auth login", icon: "LogIn", info: "Autentica tu cuenta de GitHub para acceder a Copilot CLI." },
-      { id: "suggest", label: "Sugerir comando", cmd: "gh copilot suggest '<prompt>'", icon: "Lightbulb", info: "Pide a Copilot que sugiera un comando de terminal basado en tu descripción en lenguaje natural." },
-      { id: "explain", label: "Explicar comando", cmd: "gh copilot explain '<comando>'", icon: "HelpCircle", info: "Copilot te explica qué hace un comando de terminal paso a paso." },
+      {
+        id: "install",
+        label: "Instalar",
+        cmd: "gh extension install github/gh-copilot",
+        icon: "Download",
+        info: "Instala Copilot como extensión de GitHub CLI. Requiere tener gh instalado.",
+      },
+      {
+        id: "login",
+        label: "Iniciar sesión",
+        cmd: "gh auth login",
+        icon: "LogIn",
+        info: "Autentica tu cuenta de GitHub para acceder a Copilot CLI.",
+      },
+      {
+        id: "suggest",
+        label: "Sugerir comando",
+        cmd: "gh copilot suggest \"{prompt}\"",
+        icon: "Lightbulb",
+        info: "Pide a Copilot que sugiera un comando de terminal basado en tu descripción en lenguaje natural.",
+        params: [
+          {
+            id: "prompt",
+            label: "Descripción",
+            placeholder: "Crea un comando para listar ramas git ordenadas por fecha…",
+            required: true,
+          },
+        ],
+      },
+      {
+        id: "explain",
+        label: "Explicar comando",
+        cmd: "gh copilot explain \"{comando}\"",
+        icon: "HelpCircle",
+        info: "Copilot te explica qué hace un comando de terminal paso a paso.",
+        params: [
+          {
+            id: "comando",
+            label: "Comando a explicar",
+            placeholder: "git rev-parse HEAD~3",
+            required: true,
+          },
+        ],
+      },
     ],
   },
   {
@@ -123,9 +242,35 @@ export const tools: AITool[] = [
     category: "chat",
     url: "https://sourcegraph.com/cody",
     actions: [
-      { id: "install", label: "Instalar", cmd: "npm i -g @sourcegraph/cody", icon: "Download", info: "Instala Cody CLI de Sourcegraph para usar el asistente desde terminal." },
-      { id: "login", label: "Iniciar sesión", cmd: "cody auth login", icon: "LogIn", info: "Conecta tu cuenta de Sourcegraph para acceder a las funciones de Cody." },
-      { id: "chat", label: "Iniciar chat", cmd: "cody chat '<pregunta>'", icon: "MessageSquare", info: "Inicia una conversación con Cody sobre tu código directamente desde la terminal." },
+      {
+        id: "install",
+        label: "Instalar",
+        cmd: "npm i -g @sourcegraph/cody",
+        icon: "Download",
+        info: "Instala Cody CLI de Sourcegraph para usar el asistente desde terminal.",
+      },
+      {
+        id: "login",
+        label: "Iniciar sesión",
+        cmd: "cody auth login",
+        icon: "LogIn",
+        info: "Conecta tu cuenta de Sourcegraph para acceder a las funciones de Cody.",
+      },
+      {
+        id: "chat",
+        label: "Iniciar chat",
+        cmd: "cody chat \"{pregunta}\"",
+        icon: "MessageSquare",
+        info: "Inicia una conversación con Cody sobre tu código directamente desde la terminal.",
+        params: [
+          {
+            id: "pregunta",
+            label: "Pregunta",
+            placeholder: "Resume los cambios de este repo…",
+            required: true,
+          },
+        ],
+      },
     ],
   },
   {
@@ -138,10 +283,42 @@ export const tools: AITool[] = [
     category: "agent",
     url: "https://github.com/google-gemini/gemini-cli",
     actions: [
-      { id: "install", label: "Instalar", cmd: "npm i -g @google/gemini-cli", icon: "Download", info: "Instala Gemini CLI globalmente para usar Google Gemini desde tu terminal." },
-      { id: "login", label: "Iniciar sesión", cmd: "gemini auth", icon: "LogIn", info: "Autentica tu cuenta de Google para acceder a la API de Gemini." },
-      { id: "start", label: "Iniciar", cmd: "gemini", icon: "Play", info: "Lanza el agente interactivo de Gemini para programar con IA." },
-      { id: "mcp", label: "Añadir MCP", cmd: "gemini mcp add <config>", icon: "Plug", info: "Conecta servidores MCP para extender Gemini con herramientas y contexto externo." },
+      {
+        id: "install",
+        label: "Instalar",
+        cmd: "npm i -g @google/gemini-cli",
+        icon: "Download",
+        info: "Instala Gemini CLI globalmente para usar Google Gemini desde tu terminal.",
+      },
+      {
+        id: "login",
+        label: "Iniciar sesión",
+        cmd: "gemini auth",
+        icon: "LogIn",
+        info: "Autentica tu cuenta de Google para acceder a la API de Gemini.",
+      },
+      {
+        id: "start",
+        label: "Iniciar",
+        cmd: "gemini",
+        icon: "Play",
+        info: "Lanza el agente interactivo de Gemini para programar con IA.",
+      },
+      {
+        id: "mcp",
+        label: "Añadir MCP",
+        cmd: "gemini mcp add {config}",
+        icon: "Plug",
+        info: "Conecta servidores MCP para extender Gemini con herramientas y contexto externo.",
+        params: [
+          {
+            id: "config",
+            label: "Ruta de config",
+            placeholder: "./mcp-config.json",
+            required: true,
+          },
+        ],
+      },
     ],
   },
 ];

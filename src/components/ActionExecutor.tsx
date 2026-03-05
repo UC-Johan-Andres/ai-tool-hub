@@ -6,18 +6,12 @@ import { toast } from "sonner";
 import type { AITool, ToolAction } from "@/data/tools";
 import { executeToolAction } from "@/lib/cli-executor";
 
-/** Extracts <placeholder> tokens from a command string */
-function extractPlaceholders(cmd: string): string[] {
-  const matches = cmd.match(/<[^>]+>/g);
-  return matches ? [...new Set(matches)] : [];
-}
-
-function buildCommand(cmd: string, values: Record<string, string>): string {
-  let result = cmd;
-  for (const [placeholder, value] of Object.entries(values)) {
-    result = result.split(placeholder).join(value);
-  }
-  return result;
+function buildCommand(cmd: string, params: { id: string }[], values: Record<string, string>): string {
+  return params.reduce((result, param) => {
+    const value = values[param.id]?.trim();
+    if (!value) return result;
+    return result.split(`{${param.id}}`).join(value);
+  }, cmd);
 }
 
 interface ActionExecutorProps {
@@ -27,27 +21,29 @@ interface ActionExecutorProps {
 }
 
 export function ActionExecutor({ tool, action, children }: ActionExecutorProps) {
-  const placeholders = useMemo(() => extractPlaceholders(action.cmd), [action.cmd]);
+  const params = action.params ?? [];
+  const hasParams = params.length > 0;
+
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState<Record<string, string>>({});
 
-  const hasPlaceholders = placeholders.length > 0;
-
   const finalCmd = useMemo(
-    () => (hasPlaceholders ? buildCommand(action.cmd, values) : action.cmd),
-    [action.cmd, values, hasPlaceholders],
+    () => (hasParams ? buildCommand(action.cmd, params, values) : action.cmd),
+    [action.cmd, params, values, hasParams],
   );
 
-  const allFilled = placeholders.every((p) => (values[p] ?? "").trim().length > 0);
+  const allRequiredFilled = params
+    .filter((p) => p.required)
+    .every((p) => (values[p.id] ?? "").trim().length > 0);
 
   const handleClick = useCallback(() => {
-    if (hasPlaceholders) {
+    if (hasParams) {
       setValues({});
       setOpen(true);
     } else {
       executeToolAction(tool, action);
     }
-  }, [hasPlaceholders, tool, action]);
+  }, [hasParams, tool, action]);
 
   const handleExecute = async () => {
     const resolvedAction = { ...action, cmd: finalCmd };
@@ -78,21 +74,22 @@ export function ActionExecutor({ tool, action, children }: ActionExecutorProps) 
           </DialogHeader>
 
           <div className="flex flex-col gap-3 py-2">
-            {placeholders.map((placeholder) => {
-              const label = placeholder.replace(/[<>]/g, "");
-              return (
-                <div key={placeholder} className="flex flex-col gap-1.5">
-                  <label className="font-mono text-xs text-muted-foreground">{label}</label>
-                  <Input
-                    placeholder={`Ingresa ${label}...`}
-                    value={values[placeholder] ?? ""}
-                    onChange={(e) => setValues((prev) => ({ ...prev, [placeholder]: e.target.value }))}
-                    className="h-9 font-mono text-xs"
-                    autoFocus={placeholders.indexOf(placeholder) === 0}
-                  />
-                </div>
-              );
-            })}
+            {params.map((param, i) => (
+              <div key={param.id} className="flex flex-col gap-1.5">
+                <label className="text-xs text-muted-foreground">
+                  {param.label}
+                  {param.required && <span className="ml-1 text-destructive">*</span>}
+                </label>
+                <Input
+                  type={param.type === "password" ? "password" : "text"}
+                  placeholder={param.placeholder}
+                  value={values[param.id] ?? ""}
+                  onChange={(e) => setValues((prev) => ({ ...prev, [param.id]: e.target.value }))}
+                  className="h-9 font-mono text-xs"
+                  autoFocus={i === 0}
+                />
+              </div>
+            ))}
 
             {/* Live preview */}
             <div className="rounded-md bg-secondary/60 px-3 py-2">
@@ -113,7 +110,7 @@ export function ActionExecutor({ tool, action, children }: ActionExecutorProps) 
             </button>
             <button
               type="button"
-              disabled={!allFilled}
+              disabled={!allRequiredFilled}
               onClick={handleExecute}
               className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
             >
