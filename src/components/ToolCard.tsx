@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Copy, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
-import { executeToolAction } from "@/lib/cli-executor";
+import { ActionExecutor } from "./ActionExecutor";
 import { Link } from "react-router-dom";
 
 interface ToolCardProps {
@@ -22,9 +22,7 @@ export function ToolCard({ tool, index }: ToolCardProps) {
     toast.success("Comando copiado");
   };
 
-  const handleExecute = async (action: (typeof tool.actions)[number]) => {
-    await executeToolAction(tool, action);
-  };
+  // Removed handleExecute - now handled by ActionExecutor
 
   return (
     <motion.div
@@ -91,32 +89,35 @@ export function ToolCard({ tool, index }: ToolCardProps) {
             {tool.actions.map((action) => {
               const ActionIcon = icons[action.icon as keyof typeof icons];
               return (
-                <button
-                  key={action.id}
-                  type="button"
-                  onClick={() => handleExecute(action)}
-                  className="flex items-center gap-3 rounded-md bg-secondary/50 px-3 py-2.5 text-left transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-background">
-                    {ActionIcon && <ActionIcon size={14} className="text-primary" />}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="text-xs font-medium text-foreground">{action.label}</span>
-                    <code className="mt-0.5 block truncate font-mono text-[10px] text-muted-foreground">
-                      $ {action.cmd}
-                    </code>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => copyCmd(action.cmd)}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onClickCapture={(e) => e.stopPropagation()}
-                    className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-background hover:text-primary"
-                    title="Copiar comando"
-                  >
-                    <Copy size={12} />
-                  </button>
-                </button>
+                <ActionExecutor key={action.id} tool={tool} action={action}>
+                  {({ onClick }) => (
+                    <button
+                      type="button"
+                      onClick={onClick}
+                      className="flex items-center gap-3 rounded-md bg-secondary/50 px-3 py-2.5 text-left transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-background">
+                        {ActionIcon && <ActionIcon size={14} className="text-primary" />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-xs font-medium text-foreground">{action.label}</span>
+                        <code className="mt-0.5 block truncate font-mono text-[10px] text-muted-foreground">
+                          $ {action.cmd}
+                        </code>
+                      </div>
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyCmd(action.cmd);
+                        }}
+                        className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-background hover:text-primary"
+                        title="Copiar comando"
+                      >
+                        <Copy size={12} />
+                      </span>
+                    </button>
+                  )}
+                </ActionExecutor>
               );
             })}
           </div>
