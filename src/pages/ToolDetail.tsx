@@ -6,9 +6,6 @@ import { icons } from "lucide-react";
 import { executeToolAction } from "@/lib/cli-executor";
 import { toast } from "sonner";
 
-interface RouteParams {
-  id: string;
-}
 
 interface ToolLogEntry {
   id: string;

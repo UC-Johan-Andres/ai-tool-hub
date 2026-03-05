@@ -5,6 +5,7 @@ export interface ToolAction {
   label: string;
   cmd: string;
   icon: string; // lucide icon name
+  info: string; // descripción de qué hace la acción
 }
 
 export interface AITool {
