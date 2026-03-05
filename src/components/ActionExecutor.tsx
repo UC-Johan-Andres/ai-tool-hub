@@ -15,7 +15,7 @@ function extractPlaceholders(cmd: string): string[] {
 function buildCommand(cmd: string, values: Record<string, string>): string {
   let result = cmd;
   for (const [placeholder, value] of Object.entries(values)) {
-    result = result.replaceAll(placeholder, value);
+    result = result.split(placeholder).join(value);
   }
   return result;
 }
