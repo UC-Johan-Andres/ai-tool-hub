@@ -36,7 +36,7 @@ const mockLogs: ToolLogEntry[] = [
 ];
 
 const ToolDetail = () => {
-  const { id } = useParams<RouteParams>();
+  const { id } = useParams<{ id: string }>();
 
   const tool = useMemo(() => tools.find((t) => t.id === id), [id]);
 
