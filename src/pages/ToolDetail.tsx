@@ -2,9 +2,10 @@ import { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { tools } from "@/data/tools";
 import { StatusDot } from "@/components/StatusDot";
-import { icons } from "lucide-react";
+import { icons, Info } from "lucide-react";
 import { executeToolAction } from "@/lib/cli-executor";
 import { toast } from "sonner";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 
 interface ToolLogEntry {
@@ -138,6 +139,19 @@ const ToolDetail = () => {
                         $ {action.cmd}
                       </code>
                     </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span
+                          className="shrink-0 cursor-help rounded p-1 text-muted-foreground transition-colors hover:text-primary"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Info size={14} />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="max-w-[240px] text-xs">
+                        {action.info}
+                      </TooltipContent>
+                    </Tooltip>
                   </button>
                 );
               })}
